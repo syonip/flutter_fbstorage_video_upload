@@ -49,9 +49,18 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<String> _videos = <String>[];
 
+  bool _imagePickerActive = false;
+
   void _takeVideo() async {
+    if (_imagePickerActive) return;
+
+    _imagePickerActive = true;
     final File videoFile =
         await ImagePicker.pickVideo(source: ImageSource.camera);
+    _imagePickerActive = false;
+    
+    if (videoFile == null) return;
+
     setState(() {
       _videos.add(videoFile.path);
     });
