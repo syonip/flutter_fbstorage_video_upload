@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final File videoFile =
         await ImagePicker.pickVideo(source: ImageSource.camera);
     _imagePickerActive = false;
-    
+
     if (videoFile == null) return;
 
     setState(() {
@@ -86,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
               })),
       floatingActionButton: FloatingActionButton(
         onPressed: _takeVideo,
-        tooltip: 'Increment',
+        tooltip: 'Take Video',
         child: Icon(Icons.add),
       ),
     );
