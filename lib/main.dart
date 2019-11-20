@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_publitio/flutter_publitio.dart';
 import 'package:flutter/services.dart';
@@ -61,24 +62,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   static configurePublitio() async {
-    await FlutterPublitio.configure("YOUR_API_KEY", "YOUR_API_SECRET");
+    await DotEnv().load('.env');
+    await FlutterPublitio.configure(
+        DotEnv().env['PUBLITIO_KEY'], DotEnv().env['PUBLITIO_SECRET']);
   }
 
   Future<dynamic> _uploadVideo(videoFile) async {
-    try {
-      print('starting upload');
-      final uploadOptions = {
-        "privacy": "1",
-        "option_download": "1",
-        "option_transform": "1"
-      };
-      final response =
-          await FlutterPublitio.uploadFile(videoFile.path, uploadOptions);
-      return response;
-    } on PlatformException catch (e) {
-      print(e.code);
-      //result = 'Platform Exception: ${e.code} ${e.details}';
-    }
+    print('starting upload');
+    final uploadOptions = {
+      "privacy": "1",
+      "option_download": "1",
+      "option_transform": "1"
+    };
+    final response =
+        await FlutterPublitio.uploadFile(videoFile.path, uploadOptions);
+    return response;
   }
 
   void _takeVideo() async {
@@ -95,12 +93,19 @@ class _MyHomePageState extends State<MyHomePage> {
       _uploading = true;
     });
 
-    final response = await _uploadVideo(videoFile);
-
-    setState(() {
-      _uploading = false;
-      _videos.add(response["url_preview"]);
-    });
+    try {
+      final response = await _uploadVideo(videoFile);
+      setState(() {
+        _videos.add(response["url_preview"]);
+      });
+    } on PlatformException catch (e) {
+      print(e.code);
+      //result = 'Platform Exception: ${e.code} ${e.details}';
+    } finally {
+      setState(() {
+        _uploading = false;
+      });
+    }
   }
 
   @override
