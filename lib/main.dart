@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_publitio/flutter_publitio.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -50,6 +52,34 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> _videos = <String>[];
 
   bool _imagePickerActive = false;
+  bool _uploading = false;
+
+  @override
+  void initState() {
+    configurePublitio();
+    super.initState();
+  }
+
+  static configurePublitio() async {
+    await FlutterPublitio.configure("YOUR_API_KEY", "YOUR_API_SECRET");
+  }
+
+  Future<dynamic> _uploadVideo(videoFile) async {
+    try {
+      print('starting upload');
+      final uploadOptions = {
+        "privacy": "1",
+        "option_download": "1",
+        "option_transform": "1"
+      };
+      final response =
+          await FlutterPublitio.uploadFile(videoFile.path, uploadOptions);
+      return response;
+    } on PlatformException catch (e) {
+      print(e.code);
+      //result = 'Platform Exception: ${e.code} ${e.details}';
+    }
+  }
 
   void _takeVideo() async {
     if (_imagePickerActive) return;
@@ -62,7 +92,14 @@ class _MyHomePageState extends State<MyHomePage> {
     if (videoFile == null) return;
 
     setState(() {
-      _videos.add(videoFile.path);
+      _uploading = true;
+    });
+
+    final response = await _uploadVideo(videoFile);
+
+    setState(() {
+      _uploading = false;
+      _videos.add(response["url_preview"]);
     });
   }
 
@@ -85,10 +122,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               })),
       floatingActionButton: FloatingActionButton(
-        onPressed: _takeVideo,
-        tooltip: 'Take Video',
-        child: Icon(Icons.add),
-      ),
+          child: _uploading
+              ? CircularProgressIndicator(
+                  valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              : Icon(Icons.add),
+          onPressed: _takeVideo),
     );
   }
 }
