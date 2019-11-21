@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_publitio (0.0.1):
+    - Flutter
+    - Publitio (~> 1.2)
+  - image_picker (0.0.1):
+    - Flutter
+  - Publitio (1.2)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutter_publitio (from `.symlinks/plugins/flutter_publitio/ios`)
+  - image_picker (from `.symlinks/plugins/image_picker/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Publitio
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutter_publitio:
+    :path: ".symlinks/plugins/flutter_publitio/ios"
+  image_picker:
+    :path: ".symlinks/plugins/image_picker/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_publitio: 4ddf559df4d211a6de2ca266d9b32df48f606c76
+  image_picker: e3eacd46b94694dde7cf2705955cece853aa1a8f
+  Publitio: cabb49af3b7bab50d3f70bcc3486dd74bb02db44
+
+PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
+
+COCOAPODS: 1.8.4

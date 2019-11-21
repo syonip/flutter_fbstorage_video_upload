@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _videos.add(response["url_preview"]);
       });
     } on PlatformException catch (e) {
-      print(e.code);
+      print('${e.code}: ${e.message}');
       //result = 'Platform Exception: ${e.code} ${e.details}';
     } finally {
       setState(() {
