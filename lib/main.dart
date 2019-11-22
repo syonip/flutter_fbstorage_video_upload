@@ -8,6 +8,8 @@ import 'package:flutter_publitio/flutter_publitio.dart';
 import 'package:flutter/services.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import 'chewie_player.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -17,15 +19,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Flutter Video Sharing App'),
@@ -35,15 +28,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -97,10 +81,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
     try {
       final response = await _uploadVideo(videoFile);
+      final width = response["width"];
+      final height = response["height"];
+      final double aspectRatio = width / height;
       setState(() {
         _videos.add(VideoInfo(
             videoUrl: response["url_preview"],
-            thumbUrl: response["url_thumbnail"]));
+            thumbUrl: response["url_thumbnail"],
+            aspectRatio: aspectRatio,
+            ));
       });
     } on PlatformException catch (e) {
       print('${e.code}: ${e.message}');
@@ -123,32 +112,46 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(8),
               itemCount: _videos.length,
               itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  child: new Container(
-                    padding: new EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            Center(child: CircularProgressIndicator()),
-                            Center(
-                              child: ClipRRect(
-                                borderRadius: new BorderRadius.circular(8.0),
-                                child: FadeInImage.memoryNetwork(
-                                  placeholder: kTransparentImage,
-                                  image: _videos[index].thumbUrl,
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ChewiePlayer(
+                            video: _videos[index],
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: Card(
+                    child: new Container(
+                      padding: new EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Stack(
+                            alignment: Alignment.center,
+                            children: <Widget>[
+                              Center(child: CircularProgressIndicator()),
+                              Center(
+                                child: ClipRRect(
+                                  borderRadius: new BorderRadius.circular(8.0),
+                                  child: FadeInImage.memoryNetwork(
+                                    placeholder: kTransparentImage,
+                                    image: _videos[index].thumbUrl,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Padding(padding: EdgeInsets.only(top: 20.0)),
-                        ListTile(
-                          title: Text(_videos[index].videoUrl),
-                        ),
-                      ],
+                            ],
+                          ),
+                          Padding(padding: EdgeInsets.only(top: 20.0)),
+                          ListTile(
+                            title: Text(_videos[index].videoUrl),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

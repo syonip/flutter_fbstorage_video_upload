@@ -28,6 +28,8 @@ dependencies:
   flutter_publitio: ^1.0.0
   flutter_dotenv: ^2.0.3
   transparent_image: ^1.0.0
+  video_player: ^0.10.2+5
+  chewie: ^0.9.8+1
 
 dev_dependencies:
   flutter_test:
