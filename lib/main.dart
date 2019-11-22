@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_video_sharing/video_info.dart';
@@ -84,6 +85,12 @@ class _MyHomePageState extends State<MyHomePage> {
       final width = response["width"];
       final height = response["height"];
       final double aspectRatio = width / height;
+      await Firestore.instance.collection('videos').document().setData({
+        "videoUrl": response["url_preview"],
+        "thumbUrl": response["url_thumbnail"],
+        "aspectRatio": aspectRatio,
+      }); //TODO: extract to DAL
+
       setState(() {
         _videos.add(VideoInfo(
             videoUrl: response["url_preview"],

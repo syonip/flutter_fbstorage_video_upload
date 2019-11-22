@@ -36,3 +36,5 @@ lib/generated_plugin_registrant.dart
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 .env*
 ios/Runner/Config.xcconfig
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
