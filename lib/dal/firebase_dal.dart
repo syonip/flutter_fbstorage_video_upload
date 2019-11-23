@@ -6,6 +6,7 @@ class FirebaseDAL {
     await Firestore.instance.collection('videos').document().setData({
         "videoUrl": video.videoUrl,
         "thumbUrl": video.thumbUrl,
+        "coverUrl": video.coverUrl,
         "aspectRatio": video.aspectRatio,
       });
   }
@@ -22,6 +23,7 @@ class FirebaseDAL {
       return VideoInfo(
         videoUrl: ds.data["videoUrl"],
         thumbUrl: ds.data["thumbUrl"],
+        coverUrl: ds.data["coverUrl"],
         aspectRatio: ds.data["aspectRatio"],
       );
     }).toList();

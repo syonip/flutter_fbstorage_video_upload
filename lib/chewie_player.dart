@@ -25,6 +25,9 @@ class _ChewiePlayerState extends State<ChewiePlayer> {
       autoPlay: true,
       autoInitialize: true,
       aspectRatio: widget.video.aspectRatio,
+      placeholder: Center(
+        child: Image.network(widget.video.coverUrl),
+      ),
     );
   }
 
