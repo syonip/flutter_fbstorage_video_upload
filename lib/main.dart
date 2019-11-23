@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_video_sharing/video_info.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_publitio/flutter_publitio.dart';
 import 'package:flutter/services.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import 'chewie_player.dart';
+import 'dal/firebase_dal.dart';
+import 'dal/publitio_dal.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Video Sharing App'),
+      home: MyHomePage(title: 'Flutter Video Sharing'),
     );
   }
 }
@@ -44,49 +43,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    configurePublitio();
-    listenToVideos();
+    PublitioDAL.configurePublitio();
+    FirebaseDAL.listenToVideos((newVideos) {
+      setState(() {
+        _videos = newVideos;
+      });
+    });
     super.initState();
   }
-
-  listenToVideos() async {
-    Firestore.instance.collection('videos').snapshots().listen(updateVideos);
-  }
-
-  void updateVideos(QuerySnapshot documentList) async {
-    final newVideos = mapQueryToVideoInfo(documentList); //TODO: move to DAL
-    setState(() {
-      _videos = newVideos;
-    });
-  }
-
-  static mapQueryToVideoInfo(QuerySnapshot documentList) {
-    return documentList.documents.map((DocumentSnapshot ds) {
-      return VideoInfo(
-        videoUrl: ds.data["videoUrl"],
-        thumbUrl: ds.data["thumbUrl"],
-        aspectRatio: ds.data["aspectRatio"],
-      );
-    }).toList();
-  }
-
-  static configurePublitio() async {
-    await DotEnv().load('.env');
-    await FlutterPublitio.configure(
-        DotEnv().env['PUBLITIO_KEY'], DotEnv().env['PUBLITIO_SECRET']);
-  }
-
-  Future<dynamic> _uploadVideo(videoFile) async {
-    print('starting upload');
-    final uploadOptions = {
-      "privacy": "1",
-      "option_download": "1",
-      "option_transform": "1"
-    };
-    final response =
-        await FlutterPublitio.uploadFile(videoFile.path, uploadOptions);
-    return response;
-  }
+  
 
   void _takeVideo() async {
     if (_imagePickerActive) return;
@@ -103,15 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     try {
-      final response = await _uploadVideo(videoFile);
-      final width = response["width"];
-      final height = response["height"];
-      final double aspectRatio = width / height;
-      await Firestore.instance.collection('videos').document().setData({
-        "videoUrl": response["url_preview"],
-        "thumbUrl": response["url_thumbnail"],
-        "aspectRatio": aspectRatio,
-      }); //TODO: extract to DAL
+      final video = await PublitioDAL.uploadVideo(videoFile);
+      await FirebaseDAL.saveVideo(video);
+      
     } on PlatformException catch (e) {
       print('${e.code}: ${e.message}');
       //result = 'Platform Exception: ${e.code} ${e.details}';
