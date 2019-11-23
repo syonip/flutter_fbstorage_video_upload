@@ -45,7 +45,29 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     configurePublitio();
+    listenToVideos();
     super.initState();
+  }
+
+  listenToVideos() async {
+    Firestore.instance.collection('videos').snapshots().listen(updateVideos);
+  }
+
+  void updateVideos(QuerySnapshot documentList) async {
+    final newVideos = mapQueryToVideoInfo(documentList); //TODO: move to DAL
+    setState(() {
+      _videos = newVideos;
+    });
+  }
+
+  static mapQueryToVideoInfo(QuerySnapshot documentList) {
+    return documentList.documents.map((DocumentSnapshot ds) {
+      return VideoInfo(
+        videoUrl: ds.data["videoUrl"],
+        thumbUrl: ds.data["thumbUrl"],
+        aspectRatio: ds.data["aspectRatio"],
+      );
+    }).toList();
   }
 
   static configurePublitio() async {
@@ -90,14 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
         "thumbUrl": response["url_thumbnail"],
         "aspectRatio": aspectRatio,
       }); //TODO: extract to DAL
-
-      setState(() {
-        _videos.add(VideoInfo(
-            videoUrl: response["url_preview"],
-            thumbUrl: response["url_thumbnail"],
-            aspectRatio: aspectRatio,
-            ));
-      });
     } on PlatformException catch (e) {
       print('${e.code}: ${e.message}');
       //result = 'Platform Exception: ${e.code} ${e.details}';
