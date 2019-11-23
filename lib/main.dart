@@ -13,11 +13,10 @@ import 'dal/publitio_dal.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Video Sharing',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -37,7 +36,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<VideoInfo> _videos = <VideoInfo>[];
-
   bool _imagePickerActive = false;
   bool _uploading = false;
 
@@ -51,7 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     super.initState();
   }
-  
 
   void _takeVideo() async {
     if (_imagePickerActive) return;
@@ -70,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       final video = await PublitioDAL.uploadVideo(videoFile);
       await FirebaseDAL.saveVideo(video);
-      
     } on PlatformException catch (e) {
       print('${e.code}: ${e.message}');
       //result = 'Platform Exception: ${e.code} ${e.details}';
