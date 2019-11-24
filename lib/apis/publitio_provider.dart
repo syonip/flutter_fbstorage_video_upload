@@ -3,7 +3,7 @@ import 'package:flutter_publitio/flutter_publitio.dart';
 
 import '../video_info.dart';
 
-class PublitioDAL {
+class PublitioProvider {
   static const PUBLITIO_PREFIX = "https://media.publit.io/file";
 
   static configurePublitio() async {

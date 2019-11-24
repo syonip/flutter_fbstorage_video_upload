@@ -7,8 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import 'chewie_player.dart';
-import 'dal/firebase_dal.dart';
-import 'dal/publitio_dal.dart';
+import 'apis/firebase_provider.dart';
+import 'apis/publitio_provider.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -41,8 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    PublitioDAL.configurePublitio();
-    FirebaseDAL.listenToVideos((newVideos) {
+    PublitioProvider.configurePublitio();
+    FirebaseProvider.listenToVideos((newVideos) {
       setState(() {
         _videos = newVideos;
       });
@@ -65,8 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     try {
-      final video = await PublitioDAL.uploadVideo(videoFile);
-      await FirebaseDAL.saveVideo(video);
+      final video = await PublitioProvider.uploadVideo(videoFile);
+      await FirebaseProvider.saveVideo(video);
     } on PlatformException catch (e) {
       print('${e.code}: ${e.message}');
       //result = 'Platform Exception: ${e.code} ${e.details}';

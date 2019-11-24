@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_video_sharing/video_info.dart';
 
-class FirebaseDAL {
+class FirebaseProvider {
   static saveVideo(VideoInfo video) async {
     await Firestore.instance.collection('videos').document().setData({
         "videoUrl": video.videoUrl,
