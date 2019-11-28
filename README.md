@@ -1,6 +1,7 @@
 # Flutter Video Sharing app
 
 ![final.gif](https://www.learningsomethingnew.com/flutter-video/final.gif)
+
 An example app to demonstrate video sharing using Firebase and Publitio.
 Read the full tutorial in my [blog](https://www.learningsomethingnew.com/how-to-make-a-cross-platform-video-sharing-app-with-flutter-and-firebase)
 
