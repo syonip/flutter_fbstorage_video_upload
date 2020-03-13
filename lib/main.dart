@@ -91,7 +91,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return videoUrl;
   }
 
-  Future<void> _processVideo(rawVideoPath) async {
+  Future<void> _processVideo(File rawVideoFile) async {
+    final rawVideoPath = rawVideoFile.path;
     final thumbFilePath =
         await EncodingProvider.getThumb(rawVideoPath, 100, 200);
 
