@@ -45,9 +45,5 @@
 	<string>Need access to camera</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Need access to mic</string>
-	<key>PublitioAPIKey</key>
-	<string>$(PUBLITIO_KEY)</string>
-	<key>PublitioAPISecret</key>
-	<string>$(PUBLITIO_SECRET)</string>
 </dict>
 </plist>

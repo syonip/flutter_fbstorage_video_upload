@@ -78,6 +78,7 @@ target 'Runner' do
       pod name+'/min-gpl-lts', :path => File.join(symlink, 'ios')
     else
       pod name, :path => File.join(symlink, 'ios')
+    end
   end
 end
 
