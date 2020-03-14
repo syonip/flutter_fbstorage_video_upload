@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'apis/encoding_provider.dart';
 import 'apis/firebase_provider.dart';
@@ -42,7 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _canceled = false;
   double _progress = 0.0;
   int _videoDuration = 0;
-  String _processPhase = "";
+  String _processPhase = '';
+  final bool _debugMode = false;
 
   @override
   void initState() {
@@ -79,11 +82,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<String> _uploadFile(filePath) async {
+  Future<String> _uploadFile(filePath, folderName) async {
     final file = new File(filePath);
     final basename = p.basename(filePath);
 
-    final StorageReference ref = FirebaseStorage.instance.ref().child(basename);
+    final StorageReference ref =
+        FirebaseStorage.instance.ref().child(folderName).child(basename);
     StorageUploadTask uploadTask = ref.putFile(file);
     uploadTask.events.listen(onUploadProgress);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
@@ -91,41 +95,91 @@ class _MyHomePageState extends State<MyHomePage> {
     return videoUrl;
   }
 
+  String getFileExtension(String fileName) {
+    final exploded = fileName.split('.');
+    return exploded[exploded.length - 1];
+  }
+
+  void _updatePlaylistUrls(File file, String videoName) {
+    final lines = file.readAsLinesSync();
+    var updatedLines = List<String>();
+    
+    for (final String line in lines) {
+      var updatedLine = line;
+      if (line.contains('.ts')) {
+        updatedLine = '$videoName%2F$line?alt=media';
+      }
+      updatedLines.add(updatedLine);
+    }
+    final updatedContents = updatedLines.reduce((value, element) => value + '\n' + element);
+
+    file.writeAsStringSync(updatedContents);
+  }
+
+  Future<String> _uploadHLSFiles(dirPath, videoName) async {
+
+    final videosDir = Directory(dirPath);
+
+    var playlistUrl = '';
+
+    final files = videosDir.listSync();
+    int i = 1;
+    for (FileSystemEntity file in files) {
+
+      final fileExtension = getFileExtension(p.basename(file.path));
+      if (fileExtension == 'm3u8') _updatePlaylistUrls(file, videoName);
+
+      setState(() {
+        _processPhase = 'Uploading video file $i out of ${files.length}';
+        _progress = 0.0;
+      });
+
+      final downloadUrl = await _uploadFile(file.path, videoName);
+      if (fileExtension == 'm3u8') playlistUrl = downloadUrl;
+      i++;
+    }
+
+    return playlistUrl;
+  }
+
   Future<void> _processVideo(File rawVideoFile) async {
+    final String rand = '${new Random().nextInt(10000)}';
+    final videoName = 'video$rand';
+    final Directory extDir = await getApplicationDocumentsDirectory();
+    final outDirPath = '${extDir.path}/Videos/$videoName';
+    final videosDir = new Directory(outDirPath);
+    videosDir.createSync(recursive: true);
+
     final rawVideoPath = rawVideoFile.path;
     final info = await EncodingProvider.getMediaInformation(rawVideoPath);
 
     setState(() {
-      _processPhase = "Generating thumbnail";
-      _videoDuration = info["duration"];
+      _processPhase = 'Generating thumbnail';
+      _videoDuration = info['duration'];
       _progress = 0.0;
     });
 
     final thumbFilePath =
         await EncodingProvider.getThumb(rawVideoPath, 100, 150);
 
+    final aspectRatio = await EncodingProvider.getAspectRatio(rawVideoPath);
+
     setState(() {
-      _processPhase = "Uploading thumbnail to firebase storage";
+      _processPhase = 'Uploading thumbnail to firebase storage';
       _progress = 0.0;
     });
 
-    final thumbUrl = await _uploadFile(thumbFilePath);
+    final thumbUrl = await _uploadFile(thumbFilePath, 'thumbnail');
 
     setState(() {
-      _processPhase = "Encoding video";
+      _processPhase = 'Encoding video';
       _progress = 0.0;
     });
 
-    final encodedVideoPath = await EncodingProvider.encode(rawVideoPath);
+    final encodedFilesDir =
+        await EncodingProvider.encodeHLS(rawVideoPath, outDirPath);
 
-    final aspectRatio = await EncodingProvider.getAspectRatio(encodedVideoPath);
-
-    setState(() {
-      _processPhase = "Uploading video to firebase storage";
-      _progress = 0.0;
-    });
-
-    final videoUrl = await _uploadFile(encodedVideoPath);
+    final videoUrl = await _uploadHLSFiles(encodedFilesDir, videoName);
 
     final videoInfo = VideoInfo(
       videoUrl: videoUrl,
@@ -135,29 +189,33 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     setState(() {
-      _processPhase = "Saving video metadata to cloud firestore";
+      _processPhase = 'Saving video metadata to cloud firestore';
       _progress = 0.0;
     });
 
     await FirebaseProvider.saveVideo(videoInfo);
 
     setState(() {
-      _processPhase = "";
+      _processPhase = '';
       _progress = 0.0;
       _processing = false;
     });
   }
 
   void _takeVideo() async {
-    if (_imagePickerActive) return;
+    var videoFile;
+    if (_debugMode) {
+      videoFile = File(
+          '/storage/emulated/0/Android/data/com.learningsomethingnew.fluttervideo.flutter_video_sharing/files/Pictures/ebbafabc-dcbe-433b-93dd-80e7777ee4704451355941378265171.mp4');
+    } else {
+      if (_imagePickerActive) return;
 
-    _imagePickerActive = true;
-    final File videoFile =
-        await ImagePicker.pickVideo(source: ImageSource.camera);
-    _imagePickerActive = false;
+      _imagePickerActive = true;
+      videoFile = await ImagePicker.pickVideo(source: ImageSource.camera);
+      _imagePickerActive = false;
 
-    if (videoFile == null) return;
-
+      if (videoFile == null) return;
+    }
     setState(() {
       _processing = true;
     });

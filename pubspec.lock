@@ -212,6 +212,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.4"
+  path_provider:
+    dependency: "direct main"
+    description:
+      name: path_provider
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.6.5"
+  path_provider_macos:
+    dependency: transitive
+    description:
+      name: path_provider_macos
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
+  path_provider_platform_interface:
+    dependency: transitive
+    description:
+      name: path_provider_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   pedantic:
     dependency: transitive
     description:
@@ -226,6 +247,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.0"
+  platform:
+    dependency: transitive
+    description:
+      name: platform
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.1"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -311,12 +339,24 @@ packages:
   video_player:
     dependency: "direct main"
     description:
-      path: "packages/video_player"
-      ref: a669b59
-      resolved-ref: a669b5915157fc3f897dd7ded10bd4ed34e9122c
-      url: "git://github.com/syonip/plugins.git"
-    source: git
-    version: "0.11.0"
+      name: video_player
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.10.8+1"
+  video_player_platform_interface:
+    dependency: transitive
+    description:
+      name: video_player_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.5"
+  video_player_web:
+    dependency: transitive
+    description:
+      name: video_player_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.2+1"
   xml:
     dependency: transitive
     description:

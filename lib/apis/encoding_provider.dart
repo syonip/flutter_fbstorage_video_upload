@@ -51,14 +51,10 @@ class EncodingProvider {
     return outPath;
   }
 
-  static Future<String> encodeHLS(videoPath, extDir) async {
+  static Future<String> encodeHLS(videoPath, outDirPath) async {
     if (!File(videoPath).existsSync())
       throw Exception("File at path: $videoPath doesn't exist.");
 
-    final outDirPath = '${extDir.path}/Videos/hls';
-    final videosDir = new Directory(outDirPath);
-
-    videosDir.createSync();
     List<String> arguments = [
       "-y", // overwrite
       "-i",
