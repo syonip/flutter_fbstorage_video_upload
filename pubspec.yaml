@@ -32,13 +32,18 @@ dependencies:
       url: git://github.com/syonip/plugins.git
       ref: a669b59
       path: packages/video_player
-  firebase_core: 0.4.4+2
-  cloud_firestore: 0.13.4+1
-  firebase_storage: 3.1.3
+  firebase_core: ^0.4.4+2
+  cloud_firestore: ^0.13.4+1
+  firebase_storage: ^3.1.3
   flutter_ffmpeg: ^0.2.10
   filesize: ^1.0.4
 
-
+# dependency_overrides:
+#   firebase_core:
+#     git:
+#       url: https://github.com/collinjackson/flutterfire
+#       path: packages/firebase_core/firebase_core
+#       ref: user_agent_mac
 
 dev_dependencies:
   flutter_test:

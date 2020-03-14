@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _uploading = false;
   bool _canceled = false;
   double _progress = 0.0;
-  double _videoDuration = 0.0;
+  int _videoDuration = 0;
 
   @override
   void initState() {
@@ -91,6 +91,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _processVideo(File rawVideoFile) async {
     final rawVideoPath = rawVideoFile.path;
+    final info = await EncodingProvider.getMediaInformation(rawVideoPath);
+
+    setState(() {
+      _videoDuration = info["duration"];
+      _progress = 0.0;
+    });
+
+
     final thumbFilePath =
         await EncodingProvider.getThumb(rawVideoPath, 100, 150);
 
@@ -144,54 +152,65 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: _videos.length,
-              itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return Player(
-                            video: _videos[index],
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  child: Card(
-                    child: new Container(
-                      padding: new EdgeInsets.all(10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Stack(
-                            alignment: Alignment.center,
+        child: Column(
+          children: <Widget>[
+            LinearProgressIndicator(
+              value: _progress,
+            ),
+            Expanded(
+              child: ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: _videos.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return Player(
+                                video: _videos[index],
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: Card(
+                        child: new Container(
+                          padding: new EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Center(child: CircularProgressIndicator()),
-                              Center(
-                                child: ClipRRect(
-                                  borderRadius: new BorderRadius.circular(8.0),
-                                  child: FadeInImage.memoryNetwork(
-                                    placeholder: kTransparentImage,
-                                    image: _videos[index].thumbUrl,
+                              Stack(
+                                alignment: Alignment.center,
+                                children: <Widget>[
+                                  Center(child: CircularProgressIndicator()),
+                                  Center(
+                                    child: ClipRRect(
+                                      borderRadius:
+                                          new BorderRadius.circular(8.0),
+                                      child: FadeInImage.memoryNetwork(
+                                        placeholder: kTransparentImage,
+                                        image: _videos[index].thumbUrl,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
+                              ),
+                              Padding(padding: EdgeInsets.only(top: 20.0)),
+                              ListTile(
+                                title: Text(_videos[index].videoUrl),
                               ),
                             ],
                           ),
-                          Padding(padding: EdgeInsets.only(top: 20.0)),
-                          ListTile(
-                            title: Text(_videos[index].videoUrl),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              })),
+                    );
+                  }),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
           child: _uploading
               ? CircularProgressIndicator(
