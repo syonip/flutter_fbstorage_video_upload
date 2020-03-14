@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
@@ -37,10 +38,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<VideoInfo> _videos = <VideoInfo>[];
   bool _imagePickerActive = false;
-  bool _uploading = false;
+  bool _processing = false;
   bool _canceled = false;
   double _progress = 0.0;
   int _videoDuration = 0;
+  String _processPhase = "";
 
   @override
   void initState() {
@@ -94,19 +96,34 @@ class _MyHomePageState extends State<MyHomePage> {
     final info = await EncodingProvider.getMediaInformation(rawVideoPath);
 
     setState(() {
+      _processPhase = "Generating thumbnail";
       _videoDuration = info["duration"];
       _progress = 0.0;
     });
 
-
     final thumbFilePath =
         await EncodingProvider.getThumb(rawVideoPath, 100, 150);
 
+    setState(() {
+      _processPhase = "Uploading thumbnail to firebase storage";
+      _progress = 0.0;
+    });
+
     final thumbUrl = await _uploadFile(thumbFilePath);
+
+    setState(() {
+      _processPhase = "Encoding video";
+      _progress = 0.0;
+    });
 
     final encodedVideoPath = await EncodingProvider.encode(rawVideoPath);
 
     final aspectRatio = await EncodingProvider.getAspectRatio(encodedVideoPath);
+
+    setState(() {
+      _processPhase = "Uploading video to firebase storage";
+      _progress = 0.0;
+    });
 
     final videoUrl = await _uploadFile(encodedVideoPath);
 
@@ -116,7 +133,19 @@ class _MyHomePageState extends State<MyHomePage> {
       coverUrl: thumbUrl,
       aspectRatio: aspectRatio,
     );
+
+    setState(() {
+      _processPhase = "Saving video metadata to cloud firestore";
+      _progress = 0.0;
+    });
+
     await FirebaseProvider.saveVideo(videoInfo);
+
+    setState(() {
+      _processPhase = "";
+      _progress = 0.0;
+      _processing = false;
+    });
   }
 
   void _takeVideo() async {
@@ -130,19 +159,89 @@ class _MyHomePageState extends State<MyHomePage> {
     if (videoFile == null) return;
 
     setState(() {
-      _uploading = true;
+      _processing = true;
     });
 
     try {
-      _processVideo(videoFile);
+      await _processVideo(videoFile);
     } on PlatformException catch (e) {
       print('${e.code}: ${e.message}');
       //result = 'Platform Exception: ${e.code} ${e.details}';
     } finally {
       setState(() {
-        _uploading = false;
+        _processing = false;
       });
     }
+  }
+
+  _getListView() {
+    return ListView.builder(
+        padding: const EdgeInsets.all(8),
+        itemCount: _videos.length,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return Player(
+                      video: _videos[index],
+                    );
+                  },
+                ),
+              );
+            },
+            child: Card(
+              child: new Container(
+                padding: new EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        Center(child: CircularProgressIndicator()),
+                        Center(
+                          child: ClipRRect(
+                            borderRadius: new BorderRadius.circular(8.0),
+                            child: FadeInImage.memoryNetwork(
+                              placeholder: kTransparentImage,
+                              image: _videos[index].thumbUrl,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Padding(padding: EdgeInsets.only(top: 20.0)),
+                    // ListTile(
+                    //   title: Text(_videos[index].videoUrl),
+                    // ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  _getProgressBar() {
+    return Container(
+      padding: EdgeInsets.all(30.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(bottom: 30.0),
+            child: Text(_processPhase),
+          ),
+          LinearProgressIndicator(
+            value: _progress,
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -151,68 +250,9 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            LinearProgressIndicator(
-              value: _progress,
-            ),
-            Expanded(
-              child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: _videos.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return Player(
-                                video: _videos[index],
-                              );
-                            },
-                          ),
-                        );
-                      },
-                      child: Card(
-                        child: new Container(
-                          padding: new EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Stack(
-                                alignment: Alignment.center,
-                                children: <Widget>[
-                                  Center(child: CircularProgressIndicator()),
-                                  Center(
-                                    child: ClipRRect(
-                                      borderRadius:
-                                          new BorderRadius.circular(8.0),
-                                      child: FadeInImage.memoryNetwork(
-                                        placeholder: kTransparentImage,
-                                        image: _videos[index].thumbUrl,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Padding(padding: EdgeInsets.only(top: 20.0)),
-                              ListTile(
-                                title: Text(_videos[index].videoUrl),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-            ),
-          ],
-        ),
-      ),
+      body: Center(child: _processing ? _getProgressBar() : _getListView()),
       floatingActionButton: FloatingActionButton(
-          child: _uploading
+          child: _processing
               ? CircularProgressIndicator(
                   valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
                 )
