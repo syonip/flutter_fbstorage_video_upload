@@ -1,16 +1,14 @@
 import 'dart:io';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_video_sharing/video_info.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:transparent_image/transparent_image.dart';
-
 import 'apis/encoding_provider.dart';
-import 'chewie_player.dart';
 import 'apis/firebase_provider.dart';
 import 'package:path/path.dart' as p;
+import 'models/video_info.dart';
+import 'widgets/player.dart';
 
 void main() => runApp(MyApp());
 
@@ -94,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _processVideo(File rawVideoFile) async {
     final rawVideoPath = rawVideoFile.path;
     final thumbFilePath =
-        await EncodingProvider.getThumb(rawVideoPath, 100, 200);
+        await EncodingProvider.getThumb(rawVideoPath, 100, 150);
 
     final thumbUrl = await _uploadFile(thumbFilePath);
 
@@ -156,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ChewiePlayer(
+                          return Player(
                             video: _videos[index],
                           );
                         },

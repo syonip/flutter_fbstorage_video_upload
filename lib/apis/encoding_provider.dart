@@ -29,7 +29,7 @@ class EncodingProvider {
       // "-crf",
       // "22",
       "-preset",
-      "slow",
+      "ultrafast",
       "-b:v",
       "2M",
       "-bufsize",

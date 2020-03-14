@@ -36,13 +36,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.2"
-  chewie:
-    dependency: "direct main"
-    description:
-      name: chewie
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.9.8+1"
   cloud_firestore:
     dependency: "direct main"
     description:
@@ -212,13 +205,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.8"
-  open_iconic_flutter:
-    dependency: transitive
-    description:
-      name: open_iconic_flutter
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.0"
   path:
     dependency: transitive
     description:
@@ -254,13 +240,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.5"
-  screen:
-    dependency: transitive
-    description:
-      name: screen
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.5"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -332,10 +311,12 @@ packages:
   video_player:
     dependency: "direct main"
     description:
-      name: video_player
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.10.3+1"
+      path: "packages/video_player"
+      ref: a669b59
+      resolved-ref: a669b5915157fc3f897dd7ded10bd4ed34e9122c
+      url: "git://github.com/syonip/plugins.git"
+    source: git
+    version: "0.11.0"
   xml:
     dependency: transitive
     description:
