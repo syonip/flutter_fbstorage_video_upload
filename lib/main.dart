@@ -152,17 +152,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final rawVideoPath = rawVideoFile.path;
     final info = await EncodingProvider.getMediaInformation(rawVideoPath);
+    final aspectRatio = EncodingProvider.getAspectRatio(info);
 
     setState(() {
       _processPhase = 'Generating thumbnail';
-      _videoDuration = info['duration'];
+      _videoDuration = EncodingProvider.getDuration(info);
       _progress = 0.0;
     });
 
     final thumbFilePath =
         await EncodingProvider.getThumb(rawVideoPath, 100, 150);
-
-    final aspectRatio = await EncodingProvider.getAspectRatio(rawVideoPath);
 
     setState(() {
       _processPhase = 'Uploading thumbnail to firebase storage';

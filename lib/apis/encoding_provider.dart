@@ -12,8 +12,7 @@ class EncodingProvider {
   static final FlutterFFmpegConfig _config = FlutterFFmpegConfig();
 
   static Future<String> encode(videoPath) async {
-    if (!File(videoPath).existsSync())
-      throw Exception("File at path: $videoPath doesn't exist.");
+    assert(File(videoPath).existsSync());
 
     final noExt = removeExtension(videoPath);
     final String outPath = '$noExt-encoded.mp4';
@@ -40,20 +39,14 @@ class EncodingProvider {
     ];
 
     final int rc = await _encoder.executeWithArguments(arguments);
-    if (rc != 0)
-      throw Exception(
-          'Encoding executeWithArguments failed with return code: $rc');
+    assert(rc == 0);
+    assert(File(outPath).existsSync());
 
-    var outFile = File(outPath);
-    if (!outFile.existsSync()) {
-      throw new Exception('Encoding did not create an output file.');
-    }
     return outPath;
   }
 
   static Future<String> encodeHLS(videoPath, outDirPath) async {
-    if (!File(videoPath).existsSync())
-      throw Exception("File at path: $videoPath doesn't exist.");
+    assert(File(videoPath).existsSync());
 
     List<String> arguments = [
       '-y', // overwrite
@@ -88,19 +81,12 @@ class EncodingProvider {
     ];
 
     final int rc = await _encoder.executeWithArguments(arguments);
-    if (rc != 0)
-      throw Exception(
-          'Encoding executeWithArguments failed with return code: $rc');
+    assert(rc == 0);
 
     return outDirPath;
   }
 
-  static Future<double> getAspectRatio(videoPath) async {
-    if (!File(videoPath).existsSync())
-      throw Exception("File at path: $videoPath doesn't exist.");
-
-    final info = await _probe.getMediaInformation(videoPath);
-
+  static double getAspectRatio(Map<dynamic, dynamic> info) {
     final int width = info['streams'][0]['width'];
     final int height = info['streams'][0]['height'];
     final double aspect = height / width;
@@ -108,8 +94,7 @@ class EncodingProvider {
   }
 
   static Future<String> getThumb(videoPath, width, height) async {
-    if (!File(videoPath).existsSync())
-      throw Exception("File at path: $videoPath doesn't exist.");
+    assert(File(videoPath).existsSync());
 
     final String outPath = '$videoPath.jpg';
     List<String> arguments = [
@@ -126,16 +111,8 @@ class EncodingProvider {
       outPath
     ];
     final int rc = await _encoder.executeWithArguments(arguments);
-
-    if (rc != 0)
-      throw Exception(
-          'Generating thumbnail executeWithArguments failed with return code: $rc');
-
-    var outFile = File(outPath);
-    if (!outFile.existsSync()) {
-      throw new Exception(
-          'Generating thumbnail did not create an output file.');
-    }
+    assert(rc == 0);
+    assert(File(outPath).existsSync());
 
     return outPath;
   }
@@ -149,10 +126,13 @@ class EncodingProvider {
   }
 
   static Future<Map<dynamic, dynamic>> getMediaInformation(String path) async {
-    if (!File(path).existsSync())
-      throw Exception("File at path: $path doesn't exist.");
+    assert(File(path).existsSync());
 
     return await _probe.getMediaInformation(path);
+  }
+
+  static int getDuration(Map<dynamic, dynamic> info) {
+    return info['duration'];
   }
 
   static void enableLogCallback(void Function(int level, String message) logCallback) {
