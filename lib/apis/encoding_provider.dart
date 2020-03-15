@@ -18,24 +18,24 @@ class EncodingProvider {
     final noExt = removeExtension(videoPath);
     final String outPath = '$noExt-encoded.mp4';
     List<String> arguments = [
-      "-y", // overwrite
-      "-i",
+      '-y', // overwrite
+      '-i',
       videoPath,
-      "-an",
-      "-c:v",
-      "libx264",
-      // "-x265-params",
-      // "lossless=1",
-      // "-crf",
-      // "22",
-      "-preset",
-      "ultrafast",
-      "-b:v",
-      "2M",
-      "-bufsize",
-      "2M",
-      // "-profile:v",
-      // "baseline",
+      '-an',
+      '-c:v',
+      'libx264',
+      // '-x265-params',
+      // 'lossless=1',
+      // '-crf',
+      // '22',
+      '-preset',
+      'ultrafast',
+      '-b:v',
+      '2M',
+      '-bufsize',
+      '2M',
+      // '-profile:v',
+      // 'baseline',
       outPath
     ];
 
@@ -46,7 +46,7 @@ class EncodingProvider {
 
     var outFile = File(outPath);
     if (!outFile.existsSync()) {
-      throw new Exception("Encoding did not create an output file.");
+      throw new Exception('Encoding did not create an output file.');
     }
     return outPath;
   }
@@ -56,35 +56,35 @@ class EncodingProvider {
       throw Exception("File at path: $videoPath doesn't exist.");
 
     List<String> arguments = [
-      "-y", // overwrite
-      "-i",
+      '-y', // overwrite
+      '-i',
       videoPath,
-      "-an",
-      "-c:v",
-      "libx264",
-      "-preset",
-      "ultrafast",
-      "-crf",
-      "20",
-      "-g",
-      "48",
-      "-keyint_min",
-      "48",
-      "-sc_threshold",
-      "0",
-      "-b:v",
-      "2500k",
-      "-maxrate",
-      "2675k",
-      "-bufsize",
-      "3750k",
-      "-hls_time",
-      "4",
-      "-hls_playlist_type",
-      "vod",
-      "-hls_segment_filename",
-      "$outDirPath/720p_%03d.ts",
-      "$outDirPath/720p.m3u8",
+      '-an',
+      '-c:v',
+      'libx264',
+      '-preset',
+      'ultrafast',
+      '-crf',
+      '20',
+      '-g',
+      '48',
+      '-keyint_min',
+      '48',
+      '-sc_threshold',
+      '0',
+      '-b:v',
+      '2500k',
+      '-maxrate',
+      '2675k',
+      '-bufsize',
+      '3750k',
+      '-hls_time',
+      '4',
+      '-hls_playlist_type',
+      'vod',
+      '-hls_segment_filename',
+      '$outDirPath/720p_%03d.ts',
+      '$outDirPath/720p.m3u8',
     ];
 
     final int rc = await _encoder.executeWithArguments(arguments);
@@ -101,8 +101,8 @@ class EncodingProvider {
 
     final info = await _probe.getMediaInformation(videoPath);
 
-    final int width = info["streams"][0]["width"];
-    final int height = info["streams"][0]["height"];
+    final int width = info['streams'][0]['width'];
+    final int height = info['streams'][0]['height'];
     final double aspect = height / width;
     return aspect;
   }
@@ -113,16 +113,16 @@ class EncodingProvider {
 
     final String outPath = '$videoPath.jpg';
     List<String> arguments = [
-      "-y", // overwrite
-      "-i",
+      '-y', // overwrite
+      '-i',
       videoPath,
-      "-vframes",
-      "1",
-      "-an",
-      "-s",
-      "${width}x${height}",
-      "-ss",
-      "1",
+      '-vframes',
+      '1',
+      '-an',
+      '-s',
+      '${width}x${height}',
+      '-ss',
+      '1',
       outPath
     ];
     final int rc = await _encoder.executeWithArguments(arguments);
@@ -134,7 +134,7 @@ class EncodingProvider {
     var outFile = File(outPath);
     if (!outFile.existsSync()) {
       throw new Exception(
-          "Generating thumbnail did not create an output file.");
+          'Generating thumbnail did not create an output file.');
     }
 
     return outPath;
