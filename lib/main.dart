@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
     
     for (final String line in lines) {
       var updatedLine = line;
-      if (line.contains('.ts')) {
+      if (line.contains('.ts') || line.contains('.m3u8')) {
         updatedLine = '$videoName%2F$line?alt=media';
       }
       updatedLines.add(updatedLine);
@@ -125,8 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final files = videosDir.listSync();
     int i = 1;
     for (FileSystemEntity file in files) {
-
-      final fileExtension = getFileExtension(p.basename(file.path));
+      final fileName = p.basename(file.path);
+      final fileExtension = getFileExtension(fileName);
       if (fileExtension == 'm3u8') _updatePlaylistUrls(file, videoName);
 
       setState(() {
@@ -135,7 +135,10 @@ class _MyHomePageState extends State<MyHomePage> {
       });
 
       final downloadUrl = await _uploadFile(file.path, videoName);
-      if (fileExtension == 'm3u8') playlistUrl = downloadUrl;
+
+      if (fileName == 'master.m3u8') {
+        playlistUrl = downloadUrl;
+      }
       i++;
     }
 
@@ -163,12 +166,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final thumbFilePath =
         await EncodingProvider.getThumb(rawVideoPath, 100, 150);
 
-    setState(() {
-      _processPhase = 'Uploading thumbnail to firebase storage';
-      _progress = 0.0;
-    });
+    
 
-    final thumbUrl = await _uploadFile(thumbFilePath, 'thumbnail');
 
     setState(() {
       _processPhase = 'Encoding video';
@@ -178,6 +177,11 @@ class _MyHomePageState extends State<MyHomePage> {
     final encodedFilesDir =
         await EncodingProvider.encodeHLS(rawVideoPath, outDirPath);
 
+    setState(() {
+      _processPhase = 'Uploading thumbnail to firebase storage';
+      _progress = 0.0;
+    });
+    final thumbUrl = await _uploadFile(thumbFilePath, 'thumbnail');
     final videoUrl = await _uploadHLSFiles(encodedFilesDir, videoName);
 
     final videoInfo = VideoInfo(

@@ -48,39 +48,20 @@ class EncodingProvider {
   static Future<String> encodeHLS(videoPath, outDirPath) async {
     assert(File(videoPath).existsSync());
 
-    List<String> arguments = [
-      '-y', // overwrite
-      '-i',
-      videoPath,
-      '-an',
-      '-c:v',
-      'libx264',
-      '-preset',
-      'ultrafast',
-      '-crf',
-      '20',
-      '-g',
-      '48',
-      '-keyint_min',
-      '48',
-      '-sc_threshold',
-      '0',
-      '-b:v',
-      '2500k',
-      '-maxrate',
-      '2675k',
-      '-bufsize',
-      '3750k',
-      '-hls_time',
-      '4',
-      '-hls_playlist_type',
-      'vod',
-      '-hls_segment_filename',
-      '$outDirPath/720p_%03d.ts',
-      '$outDirPath/720p.m3u8',
-    ];
+    final argumentsString = 
+    '-y -i $videoPath '+
+    '-preset ultrafast -g 48 -sc_threshold 0 '+
+    '-map 0:0 -map 0:1 -map 0:0 -map 0:1 '+
+    '-c:v:0 libx264 -b:v:0 2000k '+
+    '-c:v:1 libx264 -b:v:1 365k '+
+    '-c:a copy '+
+    '-var_stream_map "v:0,a:0 v:1,a:1" '+
+    '-master_pl_name master.m3u8 '+
+    '-f hls -hls_time 6 -hls_list_size 0 '+
+    '-hls_segment_filename "$outDirPath/%v_fileSequence_%d.ts" '+
+    '$outDirPath/%v_playlistVariant.m3u8';
 
-    final int rc = await _encoder.executeWithArguments(arguments);
+    final int rc = await _encoder.execute(argumentsString);
     assert(rc == 0);
 
     return outDirPath;
