@@ -4,10 +4,10 @@ import 'package:flutter_video_sharing/models/video_info.dart';
 class FirebaseProvider {
   static saveVideo(VideoInfo video) async {
     await Firestore.instance.collection('videos').document().setData({
-        "videoUrl": video.videoUrl,
-        "thumbUrl": video.thumbUrl,
-        "coverUrl": video.coverUrl,
-        "aspectRatio": video.aspectRatio,
+        'videoUrl': video.videoUrl,
+        'thumbUrl': video.thumbUrl,
+        'coverUrl': video.coverUrl,
+        'aspectRatio': video.aspectRatio,
       });
   }
 
@@ -21,10 +21,10 @@ class FirebaseProvider {
   static mapQueryToVideoInfo(QuerySnapshot qs) {
     return qs.documents.map((DocumentSnapshot ds) {
       return VideoInfo(
-        videoUrl: ds.data["videoUrl"],
-        thumbUrl: ds.data["thumbUrl"],
-        coverUrl: ds.data["coverUrl"],
-        aspectRatio: ds.data["aspectRatio"],
+        videoUrl: ds.data['videoUrl'],
+        thumbUrl: ds.data['thumbUrl'],
+        coverUrl: ds.data['coverUrl'],
+        aspectRatio: ds.data['aspectRatio'],
       );
     }).toList();
   }

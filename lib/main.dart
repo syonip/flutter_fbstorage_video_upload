@@ -222,10 +222,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     try {
       await _processVideo(videoFile);
-    } on PlatformException catch (e) {
-      print('${e.code}: ${e.message}');
-      //result = 'Platform Exception: ${e.code} ${e.details}';
-    } finally {
+    }
+    catch (e) {
+      print('${e.toString()}');
+    }
+    finally {
       setState(() {
         _processing = false;
       });
