@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void onUploadProgress(event) {
+  void _onUploadProgress(event) {
     if (event.type == StorageTaskEventType.progress) {
       final double progress =
           event.snapshot.bytesTransferred / event.snapshot.totalByteCount;
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final StorageReference ref =
         FirebaseStorage.instance.ref().child(folderName).child(basename);
     StorageUploadTask uploadTask = ref.putFile(file);
-    uploadTask.events.listen(onUploadProgress);
+    uploadTask.events.listen(_onUploadProgress);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
     String videoUrl = await taskSnapshot.ref.getDownloadURL();
     return videoUrl;
@@ -165,9 +165,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final thumbFilePath =
         await EncodingProvider.getThumb(rawVideoPath, 100, 150);
-
-    
-
 
     setState(() {
       _processPhase = 'Encoding video';
