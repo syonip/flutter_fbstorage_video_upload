@@ -13,7 +13,6 @@ import 'models/video_info.dart';
 import 'widgets/player.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -106,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _updatePlaylistUrls(File file, String videoName) {
     final lines = file.readAsLinesSync();
     var updatedLines = List<String>();
-    
+
     for (final String line in lines) {
       var updatedLine = line;
       if (line.contains('.ts') || line.contains('.m3u8')) {
@@ -114,13 +113,13 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       updatedLines.add(updatedLine);
     }
-    final updatedContents = updatedLines.reduce((value, element) => value + '\n' + element);
+    final updatedContents =
+        updatedLines.reduce((value, element) => value + '\n' + element);
 
     file.writeAsStringSync(updatedContents);
   }
 
   Future<String> _uploadHLSFiles(dirPath, videoName) async {
-
     final videosDir = Directory(dirPath);
 
     var playlistUrl = '';
@@ -227,11 +226,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     try {
       await _processVideo(videoFile);
-    }
-    catch (e) {
+    } catch (e) {
       print('${e.toString()}');
-    }
-    finally {
+    } finally {
       setState(() {
         _processing = false;
       });
@@ -258,52 +255,52 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
             child: Card(
-        child: new Container(
-          padding: new EdgeInsets.all(10.0),
-          child: Stack(
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Stack(
-                    children: <Widget>[
-                      Container(
-                        width: thumbWidth.toDouble(),
-                        height: thumbHeight.toDouble(),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                      ClipRRect(
-                        borderRadius: new BorderRadius.circular(8.0),
-                        child: FadeInImage.memoryNetwork(
-                          placeholder: kTransparentImage,
-                          image: _videos[index].thumbUrl,
+              child: new Container(
+                padding: new EdgeInsets.all(10.0),
+                child: Stack(
+                  children: <Widget>[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Stack(
+                          children: <Widget>[
+                            Container(
+                              width: thumbWidth.toDouble(),
+                              height: thumbHeight.toDouble(),
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                            ClipRRect(
+                              borderRadius: new BorderRadius.circular(8.0),
+                              child: FadeInImage.memoryNetwork(
+                                placeholder: kTransparentImage,
+                                image: video.thumbUrl,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: new EdgeInsets.only(left: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: <Widget>[
-                          Text("${video.videoName}"),
-                          Container(
-                            margin: new EdgeInsets.only(top: 12.0),
-                            child: Text(
-                                'Uploaded ${timeago.format(new DateTime.fromMillisecondsSinceEpoch(video.uploadedAt))}'),
+                        Expanded(
+                          child: Container(
+                            margin: new EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Text("${video.videoName}"),
+                                Container(
+                                  margin: new EdgeInsets.only(top: 12.0),
+                                  child: Text(
+                                      'Uploaded ${timeago.format(new DateTime.fromMillisecondsSinceEpoch(video.uploadedAt))}'),
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
           );
         });
   }
