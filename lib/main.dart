@@ -4,7 +4,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'apis/encoding_provider.dart';
@@ -12,6 +11,8 @@ import 'apis/firebase_provider.dart';
 import 'package:path/path.dart' as p;
 import 'models/video_info.dart';
 import 'widgets/player.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
 
 void main() => runApp(MyApp());
 
@@ -38,6 +39,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final thumbWidth = 100;
+  final thumbHeight = 150;
   List<VideoInfo> _videos = <VideoInfo>[];
   bool _imagePickerActive = false;
   bool _processing = false;
@@ -164,7 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     final thumbFilePath =
-        await EncodingProvider.getThumb(rawVideoPath, 100, 150);
+        await EncodingProvider.getThumb(rawVideoPath, thumbWidth, thumbHeight);
 
     setState(() {
       _processPhase = 'Encoding video';
@@ -186,6 +189,8 @@ class _MyHomePageState extends State<MyHomePage> {
       thumbUrl: thumbUrl,
       coverUrl: thumbUrl,
       aspectRatio: aspectRatio,
+      uploadedAt: DateTime.now().millisecondsSinceEpoch,
+      videoName: videoName,
     );
 
     setState(() {
@@ -238,6 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: const EdgeInsets.all(8),
         itemCount: _videos.length,
         itemBuilder: (BuildContext context, int index) {
+          final video = _videos[index];
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -245,41 +251,59 @@ class _MyHomePageState extends State<MyHomePage> {
                 MaterialPageRoute(
                   builder: (context) {
                     return Player(
-                      video: _videos[index],
+                      video: video,
                     );
                   },
                 ),
               );
             },
             child: Card(
-              child: new Container(
-                padding: new EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        Center(child: CircularProgressIndicator()),
-                        Center(
-                          child: ClipRRect(
-                            borderRadius: new BorderRadius.circular(8.0),
-                            child: FadeInImage.memoryNetwork(
-                              placeholder: kTransparentImage,
-                              image: _videos[index].thumbUrl,
-                            ),
-                          ),
+        child: new Container(
+          padding: new EdgeInsets.all(10.0),
+          child: Stack(
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Stack(
+                    children: <Widget>[
+                      Container(
+                        width: thumbWidth.toDouble(),
+                        height: thumbHeight.toDouble(),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      ClipRRect(
+                        borderRadius: new BorderRadius.circular(8.0),
+                        child: FadeInImage.memoryNetwork(
+                          placeholder: kTransparentImage,
+                          image: _videos[index].thumbUrl,
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Container(
+                      margin: new EdgeInsets.only(left: 20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Text("${video.videoName}"),
+                          Container(
+                            margin: new EdgeInsets.only(top: 12.0),
+                            child: Text(
+                                'Uploaded ${timeago.format(new DateTime.fromMillisecondsSinceEpoch(video.uploadedAt))}'),
+                          ),
+                        ],
+                      ),
                     ),
-                    // Padding(padding: EdgeInsets.only(top: 20.0)),
-                    // ListTile(
-                    //   title: Text(_videos[index].videoUrl),
-                    // ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
+            ],
+          ),
+        ),
+      ),
           );
         });
   }

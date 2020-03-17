@@ -8,6 +8,8 @@ class FirebaseProvider {
         'thumbUrl': video.thumbUrl,
         'coverUrl': video.coverUrl,
         'aspectRatio': video.aspectRatio,
+        'uploadedAt': video.uploadedAt,
+        'videoName': video.videoName,
       });
   }
 
@@ -25,6 +27,8 @@ class FirebaseProvider {
         thumbUrl: ds.data['thumbUrl'],
         coverUrl: ds.data['coverUrl'],
         aspectRatio: ds.data['aspectRatio'],
+        videoName: ds.data['videoName'],
+        uploadedAt: ds.data['uploadedAt'],
       );
     }).toList();
   }
