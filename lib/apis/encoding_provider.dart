@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:path_provider/path_provider.dart';
 
 removeExtension(String path) {
   final str = path.substring(0, path.length - 4);
@@ -39,14 +40,28 @@ class EncodingProvider {
     return aspect;
   }
 
-  static Future<String> getThumb(videoPath, width, height) async {
+  static Future<String> getThumb(videoPath, outDirPath, width, height) async {
     assert(File(videoPath).existsSync());
 
-    final String outPath = '$videoPath.jpg';
-    final arguments =
-        '-y -i $videoPath -vframes 1 -an -s ${width}x${height} -ss 1 $outPath';
-        
-    final int rc = await _encoder.execute(arguments);
+    // final Directory extDir = await getApplicationDocumentsDirectory();
+    
+    final outPath = '$outDirPath/thumb.jpg';
+    // final String outPath = '$videoPath.jpg';
+    final List<String> arguments = [
+      '-y',
+      '-i',
+      videoPath,
+      '-vframes',
+      '1',
+      '-an',
+      '-s',
+      '${width}x${height}',
+      '-ss',
+      '1',
+      '$outPath',
+    ];
+
+    final int rc = await _encoder.executeWithArguments(arguments);
     assert(rc == 0);
     assert(File(outPath).existsSync());
 

@@ -156,7 +156,10 @@ class _MyHomePageState extends State<MyHomePage> {
     videosDir.createSync(recursive: true);
 
     final rawVideoPath = rawVideoFile.path;
-    final info = await EncodingProvider.getMediaInformation(rawVideoPath);
+    final copyPath = '$outDirPath/copy.mp4';
+    File(rawVideoPath).copySync(copyPath);
+
+    final info = await EncodingProvider.getMediaInformation(copyPath);
     final aspectRatio = EncodingProvider.getAspectRatio(info);
 
     setState(() {
@@ -166,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     final thumbFilePath =
-        await EncodingProvider.getThumb(rawVideoPath, thumbWidth, thumbHeight);
+        await EncodingProvider.getThumb(copyPath, outDirPath, thumbWidth, thumbHeight);
 
     setState(() {
       _processPhase = 'Encoding video';
@@ -174,7 +177,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     final encodedFilesDir =
-        await EncodingProvider.encodeHLS(rawVideoPath, outDirPath);
+        await EncodingProvider.encodeHLS(copyPath, outDirPath);
+
+    File(copyPath).deleteSync();
 
     setState(() {
       _processPhase = 'Uploading thumbnail to firebase storage';
@@ -215,7 +220,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_imagePickerActive) return;
 
       _imagePickerActive = true;
-      videoFile = await ImagePicker.pickVideo(source: ImageSource.camera);
+      videoFile = await ImagePicker.pickVideo(source: ImageSource.gallery);
       _imagePickerActive = false;
 
       if (videoFile == null) return;
